@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}About Application{% endblock %}
+{% block header %}About Application{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <i class='bx bx-library' style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+        <h2
+            style="font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #A78BFA, #4F46E5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            School Library Management</h2>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Version 1.0.0</p>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+        <div class="glass-card mb-4"
+            style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(79, 70, 229, 0.3);">
+            <h3 class="mb-2" style="color: var(--text-color);"><i class='bx bx-user-circle'
+                    style="color: var(--primary-color);"></i> Developer Information</h3>
+            <p style="margin-bottom: 0.8rem; line-height: 1.6;">
+                <strong>Developed by:</strong> Zain<br>
+                <strong>Email / Contact:</strong> <a href="mailto:zainulabidpmna04@gmail.com"
+                    style="color: var(--secondary-color); text-decoration: none;">zainulabidpmna04@gmail.com</a>
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                This comprehensive software solution is designed exclusively for YES PA INAMDAR ENGLISH MEDIUM SCHOOL
+                AND JUNIOR COLLEGE to streamline book inventory, student circulation, and provide advanced analytics for
+                library administration.
+            </p>
+        </div>
+
+        <div class="glass-card" style="background: rgba(15, 23, 42, 0.4);">
+            <h3 class="mb-2" style="color: var(--text-color);"><i class='bx bx-check-shield'
+                    style="color: var(--secondary-color);"></i> License & Copyright</h3>
+            <p style="margin-bottom: 0.8rem; line-height: 1.6;">
+                <strong>License:</strong> Proprietary Software<br>
+                <strong>Copyright:</strong> &copy; {{ current_year | default('2026') }} Zain. All Rights Reserved.
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                Unauthorized copying, modification, or distribution of this software, via any medium, is strictly
+                prohibited without the express written permission of the developer.
+            </p>
+        </div>
+
+        <div class="glass-card mt-4" style="background: rgba(15, 23, 42, 0.4);">
+            <h3 class="mb-2" style="color: var(--text-color);"><i class='bx bx-laptop'
+                    style="color: var(--warning-color);"></i> Technology Stack</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                Built with Python, Flask, SQLAlchemy, and SQLite. Featuring a modern responsive Glassmorphism UI powered
+                by CSS3 and integrated Chart.js analytics. Document reporting powered by python-docx and xhtml2pdf.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

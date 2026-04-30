@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Backup & Restore{% endblock %}
+{% block header %}Data Refactory{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    
+    <!-- Export Section -->
+    <div class="glass-card text-center" style="display: flex; flex-direction: column; align-items: center; padding: 3rem 2rem;">
+        <div style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;">
+            <i class='bx bx-cloud-download'></i>
+        </div>
+        <h3 style="margin-bottom: 1rem;">Export Database</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">
+            Download a full backup of all students, books, and circulation records as a ZIP file containing CSVs.
+        </p>
+        <a href="{{ url_for('backup.export_data') }}" class="btn btn-primary" style="width: 100%; max-width: 250px;">
+            <i class='bx bx-download'></i> Download Backup
+        </a>
+    </div>
+
+    <!-- Import Section -->
+    <div class="glass-card text-center" style="display: flex; flex-direction: column; align-items: center; padding: 3rem 2rem;">
+        <div style="font-size: 4rem; color: var(--warning-color); margin-bottom: 1rem;">
+            <i class='bx bx-cloud-upload'></i>
+        </div>
+        <h3 style="margin-bottom: 1rem;">Restore Database</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">
+            Upload a previously exported ZIP backup to restore your database. <br>
+            <strong style="color: var(--danger-color);">Warning: This will overwrite current data!</strong>
+        </p>
+        
+        <form action="{{ url_for('backup.import_data') }}" method="POST" enctype="multipart/form-data" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <input type="file" name="file" class="form-control mb-4" accept=".zip" required style="max-width: 300px;">
+            <button type="submit" class="btn btn-warning" style="background: var(--warning-color); color: white; border: none; width: 100%; max-width: 250px;">
+                <i class='bx bx-upload'></i> Restore Backup
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

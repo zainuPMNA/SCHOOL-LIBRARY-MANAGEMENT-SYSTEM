@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block header %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-icon">
+            <i class='bx bx-user'></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ student_count }}</h3>
+            <p>Total Students</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2); color: var(--secondary-color);">
+            <i class='bx bx-book'></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ book_count }}</h3>
+            <p>Total Books</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--warning-color);">
+            <i class='bx bx-transfer'></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ active_issues }}</h3>
+            <p>Active Issues</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.2); color: var(--danger-color);">
+            <i class='bx bx-error-circle'></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ overdue_issues }}</h3>
+            <p>Overdue Books</p>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card mt-4">
+    <div class="flex-between mb-4">
+        <h2>Recent Issues</h2>
+        <a href="{{ url_for('circulation.index') }}" class="btn btn-primary">View All</a>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Student</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in recent_issues %}
+                <tr>
+                    <td>{{ issue.book.title }}</td>
+                    <td>{{ issue.student.name }} ({{ issue.student.roll_no }})</td>
+                    <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ issue.due_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if issue.due_date < current_time %}
+                            <span style="color: var(--danger-color);"><i class='bx bx-error'></i> Overdue</span>
+                        {% else %}
+                            <span style="color: var(--secondary-color);"><i class='bx bx-check-circle'></i> Active</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center;">No active issues found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

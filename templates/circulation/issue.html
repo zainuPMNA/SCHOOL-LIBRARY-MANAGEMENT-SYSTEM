@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Issue Book{% endblock %}
+{% block header %}Issue Book to Student{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('circulation.index') }}" class="btn btn-danger"><i class='bx bx-left-arrow-alt'></i> Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+    <form action="{{ url_for('circulation.issue') }}" method="POST">
+        <div class="form-group">
+            <label for="student_id">Select Student</label>
+            <select id="student_id" name="student_id" class="form-control" required>
+                <option value="">-- Choose Student --</option>
+                {% for student in students %}
+                <option value="{{ student.id }}">{{ student.name }} (Roll: {{ student.roll_no }}, Class: {{ student.class_name }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="book_id">Select Book</label>
+            <select id="book_id" name="book_id" class="form-control" required>
+                <option value="">-- Choose Book --</option>
+                {% for book in books %}
+                <option value="{{ book.id }}">{{ book.title }} by {{ book.author }} (Copies: {{ book.copies }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <p class="mb-4" style="color: var(--text-muted); font-size: 0.9rem;">
+            <i class='bx bx-info-circle'></i> Due date will automatically be set to 7 days from today.
+        </p>
+
+        <button type="submit" class="btn btn-success" style="width: 100%;"><i class='bx bx-check'></i> Issue Book</button>
+    </form>
+</div>
+{% endblock %}

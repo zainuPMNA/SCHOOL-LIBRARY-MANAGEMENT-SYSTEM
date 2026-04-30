@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Book{% endblock %}
+{% block header %}Edit Book: {{ book.title }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('books.index') }}" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Back to Books</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+    <form action="{{ url_for('books.edit', id=book.id) }}" method="POST">
+        <div class="dashboard-grid">
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="title">Book Title</label>
+                <input type="text" id="title" name="title" class="form-control" value="{{ book.title }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="author">Author Name</label>
+                <input type="text" id="author" name="author" class="form-control" value="{{ book.author }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="language">Language</label>
+                <input type="text" id="language" name="language" class="form-control" value="{{ book.language }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" name="subject" class="form-control" value="{{ book.subject }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input type="text" id="category" name="category" class="form-control" value="{{ book.category }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="publisher">Publisher</label>
+                <input type="text" id="publisher" name="publisher" class="form-control" value="{{ book.publisher }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="published_year">Published Year</label>
+                <input type="number" id="published_year" name="published_year" class="form-control" value="{{ book.published_year or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="copies">No. of Copies</label>
+                <input type="number" id="copies" name="copies" class="form-control" value="{{ book.copies }}" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="price">Price ($)</label>
+                <input type="number" id="price" name="price" class="form-control" value="{{ book.price }}" step="0.01" required min="0">
+            </div>
+            
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="keywords">Keywords</label>
+                <input type="text" id="keywords" name="keywords" class="form-control" value="{{ book.keywords }}">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;"><i class='bx bx-save'></i> Save Changes</button>
+    </form>
+</div>
+{% endblock %}

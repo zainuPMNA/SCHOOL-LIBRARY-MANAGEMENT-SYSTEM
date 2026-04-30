@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Return Book{% endblock %}
+{% block header %}Return Book: {{ issue.book.title }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('circulation.index') }}" class="btn btn-danger"><i class='bx bx-left-arrow-alt'></i> Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+    <div style="background: rgba(15, 23, 42, 0.5); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+        <h4 style="margin-bottom: 1rem; color: var(--primary-color);">Issue Details</h4>
+        <p><strong>Student:</strong> {{ issue.student.name }} (Roll No: {{ issue.student.roll_no }})</p>
+        <p><strong>Issued On:</strong> {{ issue.issue_date.strftime('%Y-%m-%d') }}</p>
+        <p><strong>Due On:</strong> {{ issue.due_date.strftime('%Y-%m-%d') }}</p>
+        
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            {% if late_days > 0 %}
+                <p style="color: var(--danger-color); font-weight: 600; font-size: 1.1rem;"><i class='bx bx-error'></i> Book is {{ late_days }} days late!</p>
+            {% else %}
+                <p style="color: var(--secondary-color); font-weight: 600;"><i class='bx bx-check-circle'></i> Book is being returned on time.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <form action="{{ url_for('circulation.return_book', issue_id=issue.id) }}" method="POST">
+        {% if late_days > 0 %}
+        <div class="form-group">
+            <label for="reason_for_delay">Reason for Delay <span style="color: var(--danger-color);">*</span></label>
+            <textarea id="reason_for_delay" name="reason_for_delay" class="form-control" rows="3" required placeholder="Please explain why the book is returned late..."></textarea>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;"><i class='bx bx-archive-in'></i> Process Return</button>
+    </form>
+</div>
+{% endblock %}

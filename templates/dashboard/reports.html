@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block header %}Reporting Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+    <p class="mb-4" style="color: var(--text-muted);">Select a report type and format to download or view comprehensive data.</p>
+    
+    <form action="{{ url_for('dashboard.reports') }}" method="POST">
+        <div class="form-group">
+            <label for="report_type">Select Report Type</label>
+            <select id="report_type" name="report_type" class="form-control" required>
+                <option value="students">1: All Student Data (Sorted by Class)</option>
+                <option value="books">2: All Book Data (Comprehensive Inventory)</option>
+                <option value="returns">3: Taken Books (Full Circulation History & Returns)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="format_type">Download Format</label>
+            <select id="format_type" name="format_type" class="form-control" required>
+                <option value="csv">CSV (Excel, Spreadsheets)</option>
+                <option value="docx">Word Document (.docx)</option>
+                <option value="pdf">PDF Document (Print Ready)</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;"><i class='bx bx-cloud-download'></i> Generate & Download Report</button>
+    </form>
+</div>
+{% endblock %}

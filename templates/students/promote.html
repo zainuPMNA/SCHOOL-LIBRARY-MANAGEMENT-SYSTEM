@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Promote Students{% endblock %}
+{% block header %}Promote Students{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('students.index') }}" class="btn btn-danger"><i class='bx bx-left-arrow-alt'></i> Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+    <p class="mb-4" style="color: var(--text-muted);">Step 1: Select a class to view all students.</p>
+    
+    <form action="{{ url_for('students.promote') }}" method="GET" class="flex gap-4 mb-4 align-center">
+        <select id="source_class" name="source_class" class="form-control" required style="max-width: 300px;">
+            <option value="">Select a class...</option>
+            {% for class_name in classes %}
+            <option value="{{ class_name }}" {% if source_class == class_name %}selected{% endif %}>{{ class_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Fetch Students</button>
+    </form>
+
+    {% if source_class %}
+    <hr style="border-color: var(--border-color); margin: 2rem 0;">
+    <p class="mb-4" style="color: var(--text-muted);">Step 2: Select students and choose an action.</p>
+
+    <form action="{{ url_for('students.promote') }}" method="POST">
+        <input type="hidden" name="source_class" value="{{ source_class }}">
+        
+        <div class="table-container mb-4" style="max-height: 400px; overflow-y: auto;">
+            <table>
+                <thead style="position: sticky; top: 0; z-index: 10;">
+                    <tr>
+                        <th style="width: 50px;"><input type="checkbox" id="selectAll" onclick="toggleCheckboxes(this)"></th>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Division</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td><input type="checkbox" name="student_ids" value="{{ student.id }}" class="student-checkbox"></td>
+                        <td>{{ student.roll_no }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.class_name }}</td>
+                        <td>{{ student.division }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No students found in this class.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if students %}
+        <div class="flex gap-4 align-center" style="background: rgba(15,23,42,0.5); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="flex-grow: 1;">
+                <label for="target_class" style="display:block; margin-bottom: 0.5rem;">Target Class (Promote To)</label>
+                <input type="text" id="target_class" name="target_class" class="form-control" placeholder="e.g., Class 10">
+            </div>
+            <div class="flex gap-2" style="margin-top: 1.5rem;">
+                <button type="submit" name="action" value="promote" class="btn btn-success"><i class='bx bx-trending-up'></i> Promote Selected</button>
+                <button type="submit" name="action" value="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete these students? This will also delete their circulation records.');"><i class='bx bx-trash'></i> Delete Selected (Left School)</button>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+
+    <script>
+        function toggleCheckboxes(source) {
+            checkboxes = document.querySelectorAll('.student-checkbox');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

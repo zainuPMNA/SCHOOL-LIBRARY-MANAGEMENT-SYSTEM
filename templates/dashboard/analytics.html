@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics{% endblock %}
+{% block header %}Library Analytics{% endblock %}
+
+{% block header_actions %}
+<form action="{{ url_for('dashboard.analytics') }}" method="POST" class="flex gap-2">
+    <select name="format_type" class="form-control" style="width: auto; padding: 0.4rem;" required>
+        <option value="docx">Word Document (.docx)</option>
+        <option value="csv">Raw Data (CSV)</option>
+    </select>
+    <button type="submit" class="btn btn-primary" style="padding: 0.4rem 1rem;"><i class='bx bx-download'></i> Export Analytics</button>
+</form>
+{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="glass-card mb-4">
+    <h3 class="mb-4">Monthly Books Issued</h3>
+    <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="monthlyChart"></canvas>
+    </div>
+</div>
+
+<div class="dashboard-grid mb-4">
+    <div class="glass-card" style="grid-column: span 1;">
+        <h3 class="mb-4">Class Activity Distribution</h3>
+        <div style="position: relative; height: 250px; width: 100%;">
+            <canvas id="classChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="glass-card" style="grid-column: span 1;">
+        <h3 class="mb-4">Popular Subjects</h3>
+        <div style="position: relative; height: 250px; width: 100%;">
+            <canvas id="subjectChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Active Classes Table -->
+    <div class="glass-card" style="grid-column: span 1;">
+        <h3 class="mb-4">Class Activity Details</h3>
+        <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+            <table>
+                <thead><tr><th>Class</th><th>Books Issued</th></tr></thead>
+                <tbody>
+                    {% for cls, count in classes.items() %}
+                    <tr>
+                        <td>{{ cls }}</td>
+                        <td style="color: var(--secondary-color); font-weight: bold;">{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Popular Subjects Table -->
+    <div class="glass-card" style="grid-column: span 1;">
+        <h3 class="mb-4">Subject Popularity Details</h3>
+        <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+            <table>
+                <thead><tr><th>Subject</th><th>Books Issued</th></tr></thead>
+                <tbody>
+                    {% for subj, count in subjects.items() %}
+                    <tr>
+                        <td>{{ subj }}</td>
+                        <td style="color: var(--primary-color); font-weight: bold;">{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid mt-4">
+    <!-- Top Students -->
+    <div class="glass-card" style="grid-column: span 2;">
+        <h3 class="mb-4">Top Readers</h3>
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+            <table>
+                <thead><tr><th>Student Details</th><th>Books Issued</th></tr></thead>
+                <tbody>
+                    {% for student, count in students.items() %}
+                    <tr>
+                        <td>{{ student }}</td>
+                        <td style="font-weight: bold;">{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configure global defaults for Chart.js to match the dark glassmorphism theme
+Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+// Monthly Activity Chart
+const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctxMonthly, {
+    type: 'line',
+    data: {
+        labels: {{ monthly.keys() | list | tojson }},
+        datasets: [{
+            label: 'Books Issued',
+            data: {{ monthly.values() | list | tojson }},
+            borderColor: 'rgba(99, 102, 241, 1)',
+            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+            x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+        }
+    }
+});
+
+// Class Activity Chart
+const ctxClass = document.getElementById('classChart').getContext('2d');
+new Chart(ctxClass, {
+    type: 'doughnut',
+    data: {
+        labels: {{ (classes.keys() | list)[:5] | tojson }},
+        datasets: [{
+            data: {{ (classes.values() | list)[:5] | tojson }},
+            backgroundColor: [
+                'rgba(99, 102, 241, 0.8)',
+                'rgba(236, 72, 153, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(245, 158, 11, 0.8)',
+                'rgba(59, 130, 246, 0.8)'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right' }
+        }
+    }
+});
+
+// Subject Popularity Chart
+const ctxSubject = document.getElementById('subjectChart').getContext('2d');
+new Chart(ctxSubject, {
+    type: 'bar',
+    data: {
+        labels: {{ (subjects.keys() | list)[:7] | tojson }},
+        datasets: [{
+            label: 'Books Issued',
+            data: {{ (subjects.values() | list)[:7] | tojson }},
+            backgroundColor: 'rgba(236, 72, 153, 0.6)',
+            borderColor: 'rgba(236, 72, 153, 1)',
+            borderWidth: 1,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+{% endblock %}
