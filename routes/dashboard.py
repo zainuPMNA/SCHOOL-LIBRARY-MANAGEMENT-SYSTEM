@@ -144,10 +144,11 @@ def analytics():
         monthly_stats[month_key] += 1
         yearly_stats[year_key] += 1
         
-        class_stats[student.class_name] += 1
+        class_stats[student.class_name.strip().upper()] += 1
         
         if book.subject:
-            subject_stats[book.subject] += 1
+            normalized_subject = book.subject.strip().title()
+            subject_stats[normalized_subject] += 1
             
         student_label = f"{student.name} (Class {student.class_name}, Div {student.division}, Roll {student.roll_no})"
         student_stats[student_label] += 1
