@@ -8,36 +8,75 @@
 {% endblock %}
 
 {% block content %}
-<div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+<div class="glass-card" style="max-width: 850px; margin: 0 auto;">
+    
+    <!-- ISBN Auto-Fill Helper Box -->
+    <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h4 style="margin-top: 0; margin-bottom: 0.5rem; color: #a5b4fc; font-size: 1rem;"><i class='bx bx-barcode-reader'></i> Auto-Fetch Metadata by ISBN</h4>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="isbn_search" class="form-control" placeholder="Enter ISBN (e.g., 9780131103627)" style="flex: 1;">
+            <button type="button" id="btn_lookup" class="btn btn-primary" onclick="lookupISBN()">
+                <i class='bx bx-search-alt-2'></i> Auto-Fetch Book Details
+            </button>
+        </div>
+        <span id="lookup_status" style="font-size: 0.85rem; margin-top: 6px; display: block; color: #cbd5e1;"></span>
+    </div>
+
     <form action="{{ url_for('books.add') }}" method="POST">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            
             <div class="form-group">
-                <label for="title">Book Title</label>
+                <label for="isbn">ISBN Number</label>
+                <input type="text" id="isbn" name="isbn" class="form-control" placeholder="e.g. 9780131103627">
+            </div>
+
+            <div class="form-group">
+                <label for="call_number">Call Number <span style="font-size: 0.75rem; color: #a5b4fc;">(DDC / Classification)</span></label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="call_number" name="call_number" class="form-control" placeholder="e.g. FIC LEE 1960 or 823.914 ROW">
+                    <button type="button" class="btn btn-secondary" onclick="autoGenerateCallNumber()" title="Auto-Generate Call Number" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; white-space: nowrap; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc;">
+                        <i class='bx bx-purchase-tag-alt'></i> Auto
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="book_number">Book No. / Accession No.</label>
+                <input type="text" id="book_number" name="book_number" class="form-control" placeholder="e.g. BK-001 or ACC-502">
+            </div>
+
+            <div class="form-group">
+                <label for="shelf_number">Shelf / Rack Location</label>
+                <input type="text" id="shelf_number" name="shelf_number" class="form-control" placeholder="e.g. Shelf A-2 or Rack 4">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Book Title <span style="color: var(--danger-color);">*</span></label>
                 <input type="text" id="title" name="title" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label for="author">Author Name</label>
+                <label for="author">Author Name <span style="color: var(--danger-color);">*</span></label>
                 <input type="text" id="author" name="author" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label for="language">Language</label>
-                <input type="text" id="language" name="language" class="form-control" required>
+                <label for="language">Language <span style="color: var(--danger-color);">*</span></label>
+                <input type="text" id="language" name="language" class="form-control" value="English" required>
             </div>
             
             <div class="form-group">
-                <label for="subject">Subject</label>
+                <label for="subject">Subject <span style="color: var(--danger-color);">*</span></label>
                 <input type="text" id="subject" name="subject" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label for="category">Category</label>
+                <label for="category">Category <span style="color: var(--danger-color);">*</span></label>
                 <input type="text" id="category" name="category" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label for="copies">No. of Copies</label>
+                <label for="copies">No. of Copies <span style="color: var(--danger-color);">*</span></label>
                 <input type="number" id="copies" name="copies" class="form-control" min="1" value="1" required>
             </div>
 
@@ -52,17 +91,129 @@
             </div>
 
             <div class="form-group">
+                <label for="cover_url">Cover Image URL</label>
+                <input type="url" id="cover_url" name="cover_url" class="form-control" placeholder="https://..." onchange="previewCover(this.value)">
+            </div>
+
+            <div class="form-group">
                 <label for="keywords">Keywords</label>
                 <input type="text" id="keywords" name="keywords" class="form-control">
             </div>
 
             <div class="form-group">
-                <label for="price">Price</label>
+                <label for="price">Price (₹)</label>
                 <input type="number" id="price" name="price" class="form-control" step="0.01" min="0" value="0.00" required>
             </div>
         </div>
+
+        <div id="cover_preview_box" style="margin-top: 1rem; text-align: center; display: none;">
+            <img id="cover_preview" src="" alt="Book Cover Preview" style="max-height: 140px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        </div>
         
-        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;"><i class='bx bx-save'></i> Save Book</button>
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1.5rem;"><i class='bx bx-save'></i> Save Book</button>
     </form>
 </div>
+
+<script>
+function autoGenerateCallNumber() {
+    const cat = document.getElementById('category').value.trim() || document.getElementById('subject').value.trim() || 'GEN';
+    const author = document.getElementById('author').value.trim() || 'UNK';
+    const year = document.getElementById('published_year').value.trim() || '';
+
+    const catCode = cat.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'GEN';
+    const authParts = author.split(/\s+/);
+    const lastName = authParts[authParts.length - 1] || 'UNK';
+    const authCode = lastName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 3) || 'UNK';
+
+    let code = catCode + ' ' + authCode;
+    if (year) {
+        code += ' ' + year;
+    }
+    document.getElementById('call_number').value = code;
+}
+
+function previewCover(url) {
+    const box = document.getElementById('cover_preview_box');
+    const img = document.getElementById('cover_preview');
+    if (url) {
+        img.src = url;
+        box.style.display = 'block';
+    } else {
+        box.style.display = 'none';
+    }
+}
+
+function lookupISBN() {
+    let input = document.getElementById('isbn_search').value.trim();
+    if (!input) {
+        input = document.getElementById('isbn').value.trim();
+    }
+
+    const status = document.getElementById('lookup_status');
+    const btn = document.getElementById('btn_lookup');
+    
+    if (!input) {
+        status.style.color = '#f87171';
+        status.innerText = 'Please enter an ISBN number first (e.g. 9780131103627).';
+        return;
+    }
+    
+    // Sync both fields
+    document.getElementById('isbn_search').value = input;
+    document.getElementById('isbn').value = input;
+
+    btn.disabled = true;
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Searching...";
+    status.style.color = '#cbd5e1';
+    status.innerText = 'Searching OpenLibrary & Google Books...';
+    
+    fetch(`/books/isbn_lookup/${encodeURIComponent(input)}`)
+        .then(res => {
+            if (res.redirected) {
+                window.location.href = res.url;
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = "<i class='bx bx-search-alt-2'></i> Auto-Fetch Book Details";
+            
+            if (data && data.success) {
+                document.getElementById('isbn').value = data.isbn || input;
+                if (data.title) document.getElementById('title').value = data.title;
+                if (data.author) document.getElementById('author').value = data.author;
+                if (data.publisher) document.getElementById('publisher').value = data.publisher;
+                if (data.published_year) document.getElementById('published_year').value = data.published_year;
+                if (data.category) {
+                    document.getElementById('category').value = data.category;
+                    document.getElementById('subject').value = data.category.split(',')[0];
+                }
+                if (data.call_number) {
+                    document.getElementById('call_number').value = data.call_number;
+                } else {
+                    autoGenerateCallNumber();
+                }
+                if (data.cover_url) {
+                    document.getElementById('cover_url').value = data.cover_url;
+                    previewCover(data.cover_url);
+                }
+                
+                status.style.color = '#34d399';
+                status.innerText = '✓ Book details populated successfully!';
+            } else {
+                status.style.color = '#f87171';
+                status.innerText = (data && data.message) ? data.message : 'Book details not found.';
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = "<i class='bx bx-search-alt-2'></i> Auto-Fetch Book Details";
+            status.style.color = '#f87171';
+            status.innerText = 'Connection error. Please make sure you are logged in and connected to the internet.';
+        });
+}
+</script>
 {% endblock %}
+
+

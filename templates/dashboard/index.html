@@ -4,14 +4,24 @@
 {% block header %}Dashboard Overview{% endblock %}
 
 {% block content %}
-<div class="dashboard-grid">
+<div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
     <div class="glass-card stat-card">
         <div class="stat-icon">
             <i class='bx bx-user'></i>
         </div>
         <div class="stat-info">
             <h3>{{ student_count }}</h3>
-            <p>Total Students</p>
+            <p>Students</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(167, 139, 250, 0.2); color: #c4b5fd;">
+            <i class='bx bx-briefcase'></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ staff_count }}</h3>
+            <p>School Staff</p>
         </div>
     </div>
 
@@ -57,7 +67,7 @@
             <thead>
                 <tr>
                     <th>Book</th>
-                    <th>Student</th>
+                    <th>Borrower</th>
                     <th>Issue Date</th>
                     <th>Due Date</th>
                     <th>Status</th>
@@ -67,7 +77,10 @@
                 {% for issue in recent_issues %}
                 <tr>
                     <td>{{ issue.book.title }}</td>
-                    <td>{{ issue.student.name }} ({{ issue.student.roll_no }})</td>
+                    <td>
+                        <strong>{{ issue.borrower_name }}</strong>
+                        <span style="font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; margin-left: 4px;">{{ issue.borrower_type }}</span>
+                    </td>
                     <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ issue.due_date.strftime('%Y-%m-%d') }}</td>
                     <td>

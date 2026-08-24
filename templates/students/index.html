@@ -11,13 +11,20 @@
 {% endblock %}
 
 {% block content %}
-<div class="glass-card mb-4">
-    <h3>Import via CSV</h3>
-    <p class="mb-4" style="color: var(--text-muted);">Upload a CSV file with columns: Roll No, Name, Class, Division</p>
-    <form action="{{ url_for('students.import_csv') }}" method="POST" enctype="multipart/form-data" class="flex gap-4 align-center">
-        <input type="file" name="file" class="form-control" accept=".csv" required style="max-width: 300px;">
-        <button type="submit" class="btn btn-primary"><i class='bx bx-upload'></i> Import</button>
-    </form>
+<div class="glass-card mb-4 flex-between">
+    <div>
+        <h3>Import via CSV</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Upload a CSV file with columns: Roll No, Name, Class, Division</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="{{ url_for('students.download_template') }}" class="btn" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4); text-decoration: none; display: flex; align-items: center; gap: 6px;">
+            <i class='bx bx-download'></i> Download CSV Template
+        </a>
+        <form action="{{ url_for('students.import_csv') }}" method="POST" enctype="multipart/form-data" class="flex gap-2 align-center">
+            <input type="file" name="file" class="form-control" accept=".csv" required style="max-width: 220px; padding: 0.4rem;">
+            <button type="submit" class="btn btn-primary"><i class='bx bx-upload'></i> Import</button>
+        </form>
+    </div>
 </div>
 
 <div class="glass-card">

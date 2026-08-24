@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Account Management{% endblock %}
+
+{% block header %}Account Management{% endblock %}
+
+{% block header_actions %}
+<button class="btn btn-primary" onclick="toggleCreateModal()" style="display: flex; align-items: center; gap: 6px;">
+    <i class='bx bx-user-plus' style="font-size: 1.2rem;"></i> Add New Account
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card mb-4" style="border-left: 4px solid var(--primary-color);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <i class='bx bx-shield-quarter' style="font-size: 2rem; color: #818cf8;"></i>
+        <div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 2px;">Chief Librarian Staff Access Control</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                As Chief Librarian, you can create new librarian accounts, modify usernames, update passwords, and control access permissions.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Account List Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Access Role</th>
+                <th>Created Date</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>#{{ u.id }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-weight: 700;">
+                            {{ u.username[0]|upper }}
+                        </div>
+                        <span style="font-weight: 600; color: #f8fafc;">{{ u.username }}</span>
+                        {% if u.id == session.get('user_id') %}
+                        <span style="font-size: 0.7rem; background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 6px; border-radius: 4px;">You</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    {% if u.is_chief_librarian() %}
+                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(99,102,241,0.3);">
+                        <i class='bx bx-crown'></i> Chief Librarian
+                    </span>
+                    {% else %}
+                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; background: rgba(16,185,129,0.2); color: #6ee7b7; padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(16,185,129,0.3);">
+                        <i class='bx bx-user-check'></i> Librarian
+                    </span>
+                    {% endif %}
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.9rem;">
+                    {{ u.created_at.strftime('%b %d, %Y') if u.created_at else 'N/A' }}
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn" onclick="openEditModal({{ u.id }}, '{{ u.username }}', '{{ 'chief_librarian' if u.is_chief_librarian() else 'librarian' }}')" style="background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
+                            <i class='bx bx-edit'></i> Edit Account
+                        </button>
+                        {% if u.id != session.get('user_id') %}
+                        <form method="POST" action="{{ url_for('auth.delete_account', user_id=u.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete account {{ u.username }}?');">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal: Create Account -->
+<div id="createModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 999; align-items: center; justify-content: center;">
+    <div class="glass-card" style="width: 100%; max-width: 480px; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+            <h3 style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                <i class='bx bx-user-plus' style="color: var(--primary-color);"></i> Create New Staff Account
+            </h3>
+            <button onclick="toggleCreateModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.accounts') }}">
+            <div class="form-group">
+                <label for="username"><i class='bx bx-user'></i> Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="e.g. librarian_smith" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class='bx bx-lock-alt'></i> Initial Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter initial password" required minlength="4">
+            </div>
+
+            <div class="form-group">
+                <label for="role"><i class='bx bx-shield'></i> Access Role</label>
+                <select id="role" name="role" class="form-control" required style="background: #1e293b; color: white;">
+                    <option value="librarian">Librarian (Standard Access)</option>
+                    <option value="chief_librarian">Chief Librarian (Full Administrative Access)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem;">
+                <button type="button" class="btn" onclick="toggleCreateModal()" style="background: rgba(255,255,255,0.1); color: white;">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Edit Account (Username & Password & Role) -->
+<div id="editModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 999; align-items: center; justify-content: center;">
+    <div class="glass-card" style="width: 100%; max-width: 480px; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+            <h3 style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                <i class='bx bx-edit' style="color: var(--primary-color);"></i> Edit Account Details
+            </h3>
+            <button onclick="closeEditModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <form id="editForm" method="POST" action="">
+            <div class="form-group">
+                <label for="edit_username"><i class='bx bx-user'></i> Username</label>
+                <input type="text" id="edit_username" name="username" class="form-control" placeholder="Enter username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_new_password"><i class='bx bx-key'></i> New Password <span style="font-size: 0.8rem; color: var(--text-muted);">(Leave blank to keep unchanged)</span></label>
+                <input type="password" id="edit_new_password" name="new_password" class="form-control" placeholder="Enter new password (optional)" minlength="4">
+            </div>
+
+            <div class="form-group">
+                <label for="edit_role"><i class='bx bx-shield'></i> Access Role</label>
+                <select id="edit_role" name="role" class="form-control" required style="background: #1e293b; color: white;">
+                    <option value="librarian">Librarian (Standard Access)</option>
+                    <option value="chief_librarian">Chief Librarian (Full Administrative Access)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem;">
+                <button type="button" class="btn" onclick="closeEditModal()" style="background: rgba(255,255,255,0.1); color: white;">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleCreateModal() {
+    const modal = document.getElementById('createModal');
+    modal.style.display = (modal.style.display === 'none' || !modal.style.display) ? 'flex' : 'none';
+}
+
+function openEditModal(userId, username, role) {
+    document.getElementById('edit_username').value = username;
+    document.getElementById('edit_new_password').value = '';
+    document.getElementById('edit_role').value = role;
+    document.getElementById('editForm').action = `/auth/accounts/${userId}/edit`;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+</script>
+{% endblock %}

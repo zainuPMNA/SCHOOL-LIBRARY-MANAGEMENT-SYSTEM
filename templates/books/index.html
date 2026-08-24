@@ -12,7 +12,7 @@
     <div style="flex-grow: 1; max-width: 500px;">
         <h3>Search Books</h3>
         <form action="{{ url_for('books.index') }}" method="GET" class="flex gap-2">
-            <input type="text" name="q" class="form-control" placeholder="Search by title, subject, category, publisher, year..." value="{{ search_query }}">
+            <input type="text" name="q" class="form-control" placeholder="Search by title, author, call no, book no, shelf no, ISBN..." value="{{ search_query }}">
             <button type="submit" class="btn btn-primary"><i class='bx bx-search'></i> Search</button>
             {% if search_query %}
             <a href="{{ url_for('books.index') }}" class="btn btn-danger"><i class='bx bx-x'></i> Clear</a>
@@ -20,9 +20,14 @@
         </form>
     </div>
     
-    <div style="flex-grow: 1; max-width: 400px; text-align: right;">
-        <h3>Import via CSV</h3>
-        <p class="mb-2" style="color: var(--text-muted); font-size: 0.85rem;">Columns: Title, Author, Language, Subject, Category, Copies, Publisher, Year, Keywords, Price</p>
+    <div style="flex-grow: 1; max-width: 480px; text-align: right;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <h3 style="margin: 0;">Import via CSV</h3>
+            <a href="{{ url_for('books.download_template') }}" class="btn" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4); text-decoration: none; padding: 0.25rem 0.6rem; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                <i class='bx bx-download'></i> Download Template
+            </a>
+        </div>
+        <p class="mb-2" style="color: var(--text-muted); font-size: 0.82rem;">Columns: Title, Author, ISBN, Call Number, Book Number, Shelf Number, Language, Subject, Category, Copies, Publisher, Year, Keywords, Price</p>
         <form action="{{ url_for('books.import_csv') }}" method="POST" enctype="multipart/form-data" class="flex gap-2" style="justify-content: flex-end;">
             <input type="file" name="file" class="form-control" accept=".csv" required style="max-width: 200px; padding: 0.4rem;">
             <button type="submit" class="btn btn-success" style="padding: 0.4rem 1rem;"><i class='bx bx-upload'></i> Import</button>
@@ -35,10 +40,11 @@
         <table>
             <thead>
                 <tr>
-                    <th>Title</th>
+                    <th style="width: 50px;">Cover</th>
+                    <th>Title & Classification (Call / Book / Shelf / ISBN)</th>
                     <th>Author</th>
                     <th>Category</th>
-                    <th>Available Copies</th>
+                    <th>Copies</th>
                     <th>Price</th>
                     <th>Actions</th>
                 </tr>
@@ -46,17 +52,46 @@
             <tbody>
                 {% for book in books %}
                 <tr>
-                    <td>{{ book.title }}</td>
+                    <td>
+                        {% if book.cover_url %}
+                            <img src="{{ book.cover_url }}" alt="Cover" style="width: 36px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color);" onerror="this.src='https://via.placeholder.com/36x48?text=Book'">
+                        {% else %}
+                            <div style="width: 36px; height: 48px; background: rgba(255,255,255,0.08); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #94a3b8;"><i class='bx bx-book'></i></div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">{{ book.title }}</div>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px;">
+                            {% if book.book_number %}
+                                <span style="font-size: 0.73rem; color: #60a5fa; background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-weight: 600;" title="Book Number / Accession No">
+                                    <i class='bx bx-hash'></i> {{ book.book_number }}
+                                </span>
+                            {% endif %}
+                            {% if book.shelf_number %}
+                                <span style="font-size: 0.73rem; color: #34d399; background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.3); padding: 1px 6px; border-radius: 4px; font-weight: 600;" title="Shelf / Rack Location">
+                                    <i class='bx bx-grid-alt'></i> {{ book.shelf_number }}
+                                </span>
+                            {% endif %}
+                            {% if book.call_number %}
+                                <span style="font-size: 0.73rem; color: #fcd34d; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.3); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-weight: 600;" title="Call Number / DDC">
+                                    <i class='bx bx-purchase-tag-alt'></i> {{ book.call_number }}
+                                </span>
+                            {% endif %}
+                            {% if book.isbn %}
+                                <span style="font-size: 0.73rem; color: #a5b4fc; background: rgba(99,102,241,0.15); padding: 1px 6px; border-radius: 4px;">ISBN: {{ book.isbn }}</span>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td>{{ book.author }}</td>
                     <td>{{ book.category }}</td>
                     <td>
                         {% if book.copies > 0 %}
                             <span style="color: var(--secondary-color); font-weight: 600;">{{ book.copies }}</span>
                         {% else %}
-                            <span style="color: var(--danger-color); font-weight: 600;">Out of Stock</span>
+                            <span style="color: var(--danger-color); font-weight: 600; background: rgba(239,68,68,0.15); padding: 2px 6px; border-radius: 4px;">Out of Stock</span>
                         {% endif %}
                     </td>
-                    <td>${{ "%.2f"|format(book.price) }}</td>
+                    <td>₹{{ "%.2f"|format(book.price) }}</td>
                     <td>
                         <div class="flex gap-2">
                             <a href="{{ url_for('books.edit', id=book.id) }}" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.85rem;"><i class='bx bx-edit'></i> Edit</a>
@@ -68,7 +103,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" style="text-align: center;">No books found. Add one manually or import via CSV.</td>
+                    <td colspan="7" style="text-align: center;">No books found. Add one manually or import via CSV.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -76,3 +111,4 @@
     </div>
 </div>
 {% endblock %}
+

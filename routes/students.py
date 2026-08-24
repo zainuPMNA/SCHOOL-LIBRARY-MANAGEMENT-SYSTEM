@@ -4,6 +4,16 @@ import os
 
 students_bp = Blueprint('students', __name__)
 
+@students_bp.route('/download_template')
+def download_template():
+    from flask import Response
+    csv_data = "Roll No,Name,Class,Division\n101,Aarav Sharma,10,A\n102,Ananya Patel,10,B\n103,Rohan Verma,9,A\n"
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=students_import_template.csv"}
+    )
+
 @students_bp.route('/')
 def index():
     students = Student.query.all()

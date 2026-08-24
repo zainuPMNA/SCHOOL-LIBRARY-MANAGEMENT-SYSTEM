@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request
-from models import db, Student, Book, Circulation
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from models import db, Student, Staff, Book, Circulation
 from datetime import datetime
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -7,6 +7,7 @@ dashboard_bp = Blueprint('dashboard', __name__)
 @dashboard_bp.route('/')
 def index():
     student_count = Student.query.count()
+    staff_count = Staff.query.count()
     book_count = Book.query.count()
     active_issues = Circulation.query.filter(Circulation.return_date == None).count()
     overdue_issues = Circulation.query.filter(
@@ -18,6 +19,7 @@ def index():
 
     return render_template('dashboard/index.html', 
                            student_count=student_count, 
+                           staff_count=staff_count,
                            book_count=book_count, 
                            active_issues=active_issues, 
                            overdue_issues=overdue_issues,
@@ -45,6 +47,13 @@ def reports():
                 data.append({'ID': s.id, 'Roll No': s.roll_no, 'Name': s.name, 'Class': s.class_name, 'Division': s.division})
             headers = ['ID', 'Roll No', 'Name', 'Class', 'Division']
 
+        elif report_type == 'staff':
+            title = "Comprehensive School Staff Roster"
+            staff_members = Staff.query.order_by(Staff.name).all()
+            for s in staff_members:
+                data.append({'ID': s.id, 'Staff ID': s.staff_id, 'Name': s.name, 'Designation': s.designation, 'Department': s.department, 'Phone': s.phone or 'N/A'})
+            headers = ['ID', 'Staff ID', 'Name', 'Designation', 'Department', 'Phone']
+
         elif report_type == 'books':
             title = "Comprehensive Book Inventory"
             books = Book.query.order_by(Book.title).all()
@@ -54,19 +63,17 @@ def reports():
 
         elif report_type == 'returns':
             title = "Library Book Circulation History"
-            # Get ALL circulations (both taken and returned)
             circulations = Circulation.query.order_by(Circulation.issue_date.desc()).all()
             for c in circulations:
                 data.append({
-                    'Student Name': c.student.name,
-                    'Class & Div': f"{c.student.class_name} ({c.student.division})",
-                    'Roll No': c.student.roll_no,
+                    'Borrower Type': c.borrower_type,
+                    'Borrower Name': c.borrower_name,
                     'Book Title': c.book.title,
                     'Issue Date': c.issue_date.strftime('%Y-%m-%d'),
                     'Return Date': c.return_date.strftime('%Y-%m-%d') if c.return_date else 'Not Returned',
                     'Late Days': c.late_days
                 })
-            headers = ['Student Name', 'Class & Div', 'Roll No', 'Book Title', 'Issue Date', 'Return Date', 'Late Days']
+            headers = ['Borrower Type', 'Borrower Name', 'Book Title', 'Issue Date', 'Return Date', 'Late Days']
 
         if not data:
             flash("No data available for the selected report.", "warning")
@@ -208,6 +215,10 @@ def analytics():
                           classes=class_sorted, 
                           subjects=subject_sorted, 
                           students=student_sorted)
+
+@dashboard_bp.route('/rules')
+def rules():
+    return render_template('dashboard/rules.html')
 
 @dashboard_bp.route('/about')
 def about():

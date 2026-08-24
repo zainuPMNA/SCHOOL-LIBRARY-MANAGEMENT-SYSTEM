@@ -15,6 +15,31 @@
                 <label for="title">Book Title</label>
                 <input type="text" id="title" name="title" class="form-control" value="{{ book.title }}" required>
             </div>
+
+            <div class="form-group">
+                <label for="isbn">ISBN</label>
+                <input type="text" id="isbn" name="isbn" class="form-control" value="{{ book.isbn or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="call_number">Call Number <span style="font-size: 0.75rem; color: #a5b4fc;">(DDC / Classification)</span></label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="call_number" name="call_number" class="form-control" value="{{ book.call_number or '' }}" placeholder="e.g. FIC LEE 1960 or 823.914 ROW">
+                    <button type="button" class="btn btn-secondary" onclick="autoGenerateCallNumber()" title="Auto-Generate Call Number" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; white-space: nowrap; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc;">
+                        <i class='bx bx-purchase-tag-alt'></i> Auto
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="book_number">Book No. / Accession No.</label>
+                <input type="text" id="book_number" name="book_number" class="form-control" value="{{ book.book_number or '' }}" placeholder="e.g. BK-001 or ACC-502">
+            </div>
+
+            <div class="form-group">
+                <label for="shelf_number">Shelf / Rack Location</label>
+                <input type="text" id="shelf_number" name="shelf_number" class="form-control" value="{{ book.shelf_number or '' }}" placeholder="e.g. Shelf A-2 or Rack 4">
+            </div>
             
             <div class="form-group">
                 <label for="author">Author Name</label>
@@ -52,8 +77,13 @@
             </div>
             
             <div class="form-group">
-                <label for="price">Price ($)</label>
+                <label for="price">Price (₹)</label>
                 <input type="number" id="price" name="price" class="form-control" value="{{ book.price }}" step="0.01" required min="0">
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="cover_url">Cover Image URL</label>
+                <input type="url" id="cover_url" name="cover_url" class="form-control" value="{{ book.cover_url or '' }}">
             </div>
             
             <div class="form-group" style="grid-column: span 2;">
@@ -65,4 +95,24 @@
         <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;"><i class='bx bx-save'></i> Save Changes</button>
     </form>
 </div>
+
+<script>
+function autoGenerateCallNumber() {
+    const cat = document.getElementById('category').value.trim() || document.getElementById('subject').value.trim() || 'GEN';
+    const author = document.getElementById('author').value.trim() || 'UNK';
+    const year = document.getElementById('published_year').value.trim() || '';
+
+    const catCode = cat.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'GEN';
+    const authParts = author.split(/\s+/);
+    const lastName = authParts[authParts.length - 1] || 'UNK';
+    const authCode = lastName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 3) || 'UNK';
+
+    let code = catCode + ' ' + authCode;
+    if (year) {
+        code += ' ' + year;
+    }
+    document.getElementById('call_number').value = code;
+}
+</script>
 {% endblock %}
+

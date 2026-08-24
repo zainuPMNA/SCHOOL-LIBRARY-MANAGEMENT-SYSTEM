@@ -1,17 +1,21 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, current_app
-from models import db, Student, Book, Circulation
+from models import db, Student, Staff, Book, Circulation
 import os
 import zipfile
 import io
 from datetime import datetime
 
+from routes.auth import chief_librarian_required
+
 backup_bp = Blueprint('backup', __name__)
 
 @backup_bp.route('/')
+@chief_librarian_required
 def index():
     return render_template('backup/index.html')
 
 @backup_bp.route('/export')
+@chief_librarian_required
 def export_data():
     import csv
     memory_file = io.BytesIO()
@@ -26,6 +30,16 @@ def export_data():
                 writer.writerow({'id': s.id, 'roll_no': s.roll_no, 'name': s.name, 'class_name': s.class_name, 'division': s.division})
         zf.writestr('students.csv', sf.getvalue())
         
+        # Export Staff Members
+        staff_members = Staff.query.all()
+        stf = io.StringIO()
+        if staff_members:
+            writer = csv.DictWriter(stf, fieldnames=['id', 'staff_id', 'name', 'designation', 'department', 'phone'])
+            writer.writeheader()
+            for st in staff_members:
+                writer.writerow({'id': st.id, 'staff_id': st.staff_id, 'name': st.name, 'designation': st.designation, 'department': st.department, 'phone': st.phone})
+        zf.writestr('staff.csv', stf.getvalue())
+
         # Export Books
         books = Book.query.all()
         bf = io.StringIO()
@@ -40,10 +54,10 @@ def export_data():
         circulation = Circulation.query.all()
         cf = io.StringIO()
         if circulation:
-            writer = csv.DictWriter(cf, fieldnames=['id', 'book_id', 'student_id', 'issue_date', 'due_date', 'return_date', 'late_days', 'reason_for_delay'])
+            writer = csv.DictWriter(cf, fieldnames=['id', 'book_id', 'student_id', 'staff_id', 'issue_date', 'due_date', 'return_date', 'late_days', 'reason_for_delay'])
             writer.writeheader()
             for c in circulation:
-                writer.writerow({'id': c.id, 'book_id': c.book_id, 'student_id': c.student_id, 'issue_date': c.issue_date, 'due_date': c.due_date, 'return_date': c.return_date, 'late_days': c.late_days, 'reason_for_delay': c.reason_for_delay})
+                writer.writerow({'id': c.id, 'book_id': c.book_id, 'student_id': c.student_id, 'staff_id': c.staff_id, 'issue_date': c.issue_date, 'due_date': c.due_date, 'return_date': c.return_date, 'late_days': c.late_days, 'reason_for_delay': c.reason_for_delay})
         zf.writestr('circulation.csv', cf.getvalue())
         
     memory_file.seek(0)
@@ -56,6 +70,7 @@ def export_data():
     )
 
 @backup_bp.route('/import', methods=['POST'])
+@chief_librarian_required
 def import_data():
     if 'file' not in request.files:
         flash("No file part", "danger")
@@ -74,6 +89,7 @@ def import_data():
             with zipfile.ZipFile(filepath, 'r') as zf:
                 Circulation.query.delete()
                 Student.query.delete()
+                Staff.query.delete()
                 Book.query.delete()
                 db.session.commit()
                 
@@ -84,6 +100,15 @@ def import_data():
                         for row in reader:
                             new_student = Student(id=row.get('id'), roll_no=row.get('roll_no'), name=row.get('name'), class_name=row.get('class_name'), division=row.get('division'))
                             db.session.add(new_student)
+                        db.session.commit()
+
+                if 'staff.csv' in zf.namelist():
+                    with zf.open('staff.csv') as f:
+                        text_file = io.TextIOWrapper(f, encoding='utf-8')
+                        reader = csv.DictReader(text_file)
+                        for row in reader:
+                            new_staff = Staff(id=row.get('id'), staff_id=row.get('staff_id'), name=row.get('name'), designation=row.get('designation'), department=row.get('department'), phone=row.get('phone'))
+                            db.session.add(new_staff)
                         db.session.commit()
                         
                 if 'books.csv' in zf.namelist():
@@ -104,7 +129,17 @@ def import_data():
                             issue_d = datetime.strptime(row.get('issue_date').split('.')[0], '%Y-%m-%d %H:%M:%S') if row.get('issue_date') else datetime.utcnow()
                             due_d = datetime.strptime(row.get('due_date').split('.')[0], '%Y-%m-%d %H:%M:%S') if row.get('due_date') else datetime.utcnow()
                             ret_d = datetime.strptime(row.get('return_date').split('.')[0], '%Y-%m-%d %H:%M:%S') if row.get('return_date') else None
-                            new_circ = Circulation(id=row.get('id'), book_id=row.get('book_id'), student_id=row.get('student_id'), issue_date=issue_d, due_date=due_d, return_date=ret_d, late_days=row.get('late_days', 0), reason_for_delay=row.get('reason_for_delay'))
+                            new_circ = Circulation(
+                                id=row.get('id'),
+                                book_id=row.get('book_id'),
+                                student_id=row.get('student_id') if row.get('student_id') else None,
+                                staff_id=row.get('staff_id') if row.get('staff_id') else None,
+                                issue_date=issue_d,
+                                due_date=due_d,
+                                return_date=ret_d,
+                                late_days=row.get('late_days', 0),
+                                reason_for_delay=row.get('reason_for_delay')
+                            )
                             db.session.add(new_circ)
                         db.session.commit()
                         

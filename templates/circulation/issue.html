@@ -1,40 +1,95 @@
 {% extends "base.html" %}
 
 {% block title %}Issue Book{% endblock %}
-{% block header %}Issue Book to Student{% endblock %}
+{% block header %}Issue Book to Student / Staff{% endblock %}
 
 {% block header_actions %}
 <a href="{{ url_for('circulation.index') }}" class="btn btn-danger"><i class='bx bx-left-arrow-alt'></i> Back</a>
 {% endblock %}
 
 {% block content %}
-<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+<div class="glass-card" style="max-width: 620px; margin: 0 auto;">
+    
+    <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: #cbd5e1;">
+        <div style="font-weight: 600; color: #a5b4fc; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            <i class='bx bx-shield-quarter'></i> Circulation Rules:
+        </div>
+        <ul style="margin: 0; padding-left: 1.25rem;">
+            <li><strong>Students:</strong> Max limit <strong>{{ max_student_limit }} books</strong> for <strong>7 Days</strong>.</li>
+            <li><strong>School Staff:</strong> Max limit <strong>{{ max_staff_limit }} books</strong> for <strong>14 Days</strong>.</li>
+            <li>Borrowers with unpaid fines are blocked from issuing new books.</li>
+        </ul>
+    </div>
+
     <form action="{{ url_for('circulation.issue') }}" method="POST">
         <div class="form-group">
-            <label for="student_id">Select Student</label>
-            <select id="student_id" name="student_id" class="form-control" required>
+            <label><i class='bx bx-user-pin'></i> Borrower Category <span style="color: var(--danger-color);">*</span></label>
+            <div style="display: flex; gap: 15px; margin-top: 5px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: white; background: rgba(255,255,255,0.06); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); flex: 1;">
+                    <input type="radio" name="borrower_type" value="student" checked onchange="toggleBorrowerType('student')">
+                    <i class='bx bx-user' style="color: #60a5fa;"></i> Student
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: white; background: rgba(255,255,255,0.06); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); flex: 1;">
+                    <input type="radio" name="borrower_type" value="staff" onchange="toggleBorrowerType('staff')">
+                    <i class='bx bx-briefcase' style="color: #a78bfa;"></i> School Staff
+                </label>
+            </div>
+        </div>
+
+        <!-- Student Selector -->
+        <div class="form-group" id="student_select_group">
+            <label for="student_id">Select Student <span style="color: var(--danger-color);">*</span></label>
+            <select id="student_id" name="student_id" class="form-control" style="background: #1e293b; color: white;">
                 <option value="">-- Choose Student --</option>
                 {% for student in students %}
-                <option value="{{ student.id }}">{{ student.name }} (Roll: {{ student.roll_no }}, Class: {{ student.class_name }})</option>
+                <option value="{{ student.id }}">{{ student.name }} (Roll: {{ student.roll_no }}, Class: {{ student.class_name }}-{{ student.division }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Staff Selector -->
+        <div class="form-group" id="staff_select_group" style="display: none;">
+            <label for="staff_id">Select Staff Member <span style="color: var(--danger-color);">*</span></label>
+            <select id="staff_id" name="staff_id" class="form-control" style="background: #1e293b; color: white;">
+                <option value="">-- Choose Staff Member --</option>
+                {% for staff in staff_members %}
+                <option value="{{ staff.id }}">{{ staff.name }} (ID: {{ staff.staff_id }} - {{ staff.designation }}, {{ staff.department }})</option>
                 {% endfor %}
             </select>
         </div>
         
         <div class="form-group">
-            <label for="book_id">Select Book</label>
-            <select id="book_id" name="book_id" class="form-control" required>
+            <label for="book_id">Select Book <span style="color: var(--danger-color);">*</span></label>
+            <select id="book_id" name="book_id" class="form-control" required style="background: #1e293b; color: white;">
                 <option value="">-- Choose Book --</option>
                 {% for book in books %}
-                <option value="{{ book.id }}">{{ book.title }} by {{ book.author }} (Copies: {{ book.copies }})</option>
+                <option value="{{ book.id }}">{{ book.title }} by {{ book.author }} {% if book.book_number %}[{{ book.book_number }}]{% endif %} {% if book.shelf_number %}[{{ book.shelf_number }}]{% endif %} {% if book.call_number %}[Call No: {{ book.call_number }}]{% endif %} (Available: {{ book.copies }})</option>
                 {% endfor %}
             </select>
         </div>
-        
-        <p class="mb-4" style="color: var(--text-muted); font-size: 0.9rem;">
-            <i class='bx bx-info-circle'></i> Due date will automatically be set to 7 days from today.
-        </p>
 
-        <button type="submit" class="btn btn-success" style="width: 100%;"><i class='bx bx-check'></i> Issue Book</button>
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;"><i class='bx bx-check-circle'></i> Issue Book</button>
     </form>
 </div>
+
+<script>
+function toggleBorrowerType(type) {
+    const studentGroup = document.getElementById('student_select_group');
+    const staffGroup = document.getElementById('staff_select_group');
+    const studentSelect = document.getElementById('student_id');
+    const staffSelect = document.getElementById('staff_id');
+
+    if (type === 'staff') {
+        studentGroup.style.display = 'none';
+        staffGroup.style.display = 'block';
+        studentSelect.required = false;
+        staffSelect.required = true;
+    } else {
+        studentGroup.style.display = 'block';
+        staffGroup.style.display = 'none';
+        studentSelect.required = true;
+        staffSelect.required = false;
+    }
+}
+</script>
 {% endblock %}

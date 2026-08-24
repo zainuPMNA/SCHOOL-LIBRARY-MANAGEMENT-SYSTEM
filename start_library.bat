@@ -21,14 +21,28 @@ IF NOT EXIST "env\Scripts\activate.bat" (
     call env\Scripts\activate.bat
 )
 
+:: Get local IPv4 Address using PowerShell
+for /f "tokens=*" %%a in ('powershell -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi*','Ethernet*' | Where-Object {$_.IPAddress -notlike '169.254*'} | Select-Object -ExpandProperty IPAddress | Select-Object -First 1"') do set LOCAL_IP=%%a
+
+if "%LOCAL_IP%"=="" set LOCAL_IP=127.0.0.1
+
 echo.
+echo ========================================================
+echo   [i] LOCAL SERVER RUNNING!
+echo   ------------------------------------------------------
+echo   [+] Access on THIS PC:       http://localhost:5000
+echo   [+] Access from OTHER DEVICES (Wi-Fi/LAN):
+echo       http://%LOCAL_IP%:5000
+echo ========================================================
+echo.
+
 echo [i] Opening your web browser...
 :: Wait 2 seconds to ensure server starts before browser opens
 timeout /t 2 /nobreak > NUL
-start http://127.0.0.1:5000
+start http://localhost:5000
 
-echo [i] The server is running. Keep this black window open while using the app!
-echo [i] To close the library app, close this window.
+echo [i] Keep this window open while using the app!
+echo [i] To stop the server, close this window or press Ctrl+C.
 echo.
 python app.py
 

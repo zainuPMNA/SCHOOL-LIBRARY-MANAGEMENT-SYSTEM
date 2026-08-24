@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Rules of Library{% endblock %}
+
+{% block header %}Rules & Guidelines of the Library{% endblock %}
+
+{% block content %}
+<div class="glass-card mb-4" style="border-left: 4px solid var(--primary-color);">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(99, 102, 241, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--primary-color);">
+            <i class='bx bx-list-check'></i>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 2px;">YES PA INAMDAR SCHOOL LIBRARY CODE OF CONDUCT</h3>
+            <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0;">
+                These rules are designed to maintain an environment conducive to learning, reading, research, and smooth library operations for both students and staff.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- Section 1: Rules for Students & Borrowers -->
+    <div class="glass-card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <i class='bx bx-user-voice' style="font-size: 1.6rem; color: #60a5fa;"></i>
+            <h3 style="font-size: 1.15rem; margin: 0; color: #f8fafc;">Rules for Students & Readers</h3>
+        </div>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; color: #cbd5e1; font-size: 0.93rem; padding: 0;">
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-check-circle' style="color: var(--secondary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Silence & Decorum:</strong> Perfect silence must be maintained in the reading hall. Group discussions are strictly prohibited in quiet study zones.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-check-circle' style="color: var(--secondary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Book Handling:</strong> Handle all books with care. Do not write, underline, mark, or fold pages of library books or periodicals.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-check-circle' style="color: var(--secondary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Borrowing Allowance:</strong> Students may borrow books according to their eligibility limit and must present their valid library ID.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-check-circle' style="color: var(--secondary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Timely Return:</strong> Books must be returned on or before the specified due date. Late returns will incur overdue charges.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-check-circle' style="color: var(--secondary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Inspection before Issue:</strong> Readers should inspect books prior to leaving the circulation counter and notify staff of any pre-existing damage.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-check-circle' style="color: var(--secondary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Personal Belongings:</strong> Bags, personal books, and eatables must be deposited at the property counter before entering the library.</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Section 2: Rules & Responsibilities for Librarians -->
+    <div class="glass-card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <i class='bx bx-shield-quarter' style="font-size: 1.6rem; color: #a78bfa;"></i>
+            <h3 style="font-size: 1.15rem; margin: 0; color: #f8fafc;">Rules & Duties for Librarians</h3>
+        </div>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; color: #cbd5e1; font-size: 0.93rem; padding: 0;">
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-shield-check' style="color: var(--primary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Accurate Circulation Records:</strong> Log all book issues, returns, and renewals immediately in the library system without delay.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-shield-check' style="color: var(--primary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Equal & Fair Access:</strong> Provide polite, professional assistance and equal borrowing access to all students and staff members.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-shield-check' style="color: var(--primary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Inventory Maintenance:</strong> Routinely check cataloging, subject categorization, and physical condition of books on shelves.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-shield-check' style="color: var(--primary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Overdue & Fine Enforcement:</strong> Collect and record overdue fines fairly as per official school rules, issuing valid receipts or system logs.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-shield-check' style="color: var(--primary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Data Security & Privacy:</strong> Protect student reading history and user credentials. Ensure routine database backups are taken.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                <i class='bx bx-shield-check' style="color: var(--primary-color); font-size: 1.2rem; margin-top: 2px;"></i>
+                <span><strong>Environment Control:</strong> Ensure quiet reading hours, clean environment, and proper lighting across reading sections.</span>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Section 3: Fine & Circulation Policies -->
+<div class="glass-card">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+        <i class='bx bx-error-alt' style="font-size: 1.6rem; color: #f59e0b;"></i>
+        <h3 style="font-size: 1.15rem; margin: 0; color: #f8fafc;">Lost Book & Damage Penalty Policy</h3>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        <div style="background: rgba(255,255,255,0.04); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h4 style="color: #fcd34d; margin-bottom: 0.4rem; font-size: 1rem;"><i class='bx bx-time-five'></i> Overdue Fine</h4>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+                A nominal fine per day is calculated for books returned after the due date. Continued delay may restrict further borrowing privileges.
+            </p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h4 style="color: #f87171; margin-bottom: 0.4rem; font-size: 1rem;"><i class='bx bx-book-content'></i> Damaged Book</h4>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+                If a book is damaged or torn while in a reader's possession, the reader must pay for rebinding costs or replace the book with a fresh copy.
+            </p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h4 style="color: #60a5fa; margin-bottom: 0.4rem; font-size: 1rem;"><i class='bx bx-archive-out'></i> Lost Book</h4>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+                In case of lost books, the borrower must replace the book with the same edition or pay the current market price of the book.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

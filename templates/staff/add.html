@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Add Staff Member{% endblock %}
+{% block header %}Add New School Staff Member{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('staff.index') }}" class="btn btn-danger"><i class='bx bx-left-arrow-alt'></i> Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+    <form action="{{ url_for('staff.add') }}" method="POST">
+        <div class="form-group">
+            <label for="staff_id">Staff / Employee ID <span style="color: var(--danger-color);">*</span></label>
+            <input type="text" id="staff_id" name="staff_id" class="form-control" placeholder="e.g. EMP101, TCH05" required>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Full Name <span style="color: var(--danger-color);">*</span></label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Dr. Rajesh Sharma" required>
+        </div>
+
+        <div class="form-group">
+            <label for="designation">Designation / Role <span style="color: var(--danger-color);">*</span></label>
+            <input type="text" id="designation" name="designation" class="form-control" placeholder="e.g. Teacher, HOD, Assistant, Principal" required>
+        </div>
+
+        <div class="form-group">
+            <label for="department">Department / Subject <span style="color: var(--danger-color);">*</span></label>
+            <input type="text" id="department" name="department" class="form-control" placeholder="e.g. Science, English, Mathematics, Administration" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Contact Phone Number</label>
+            <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. 9876543210">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem;">
+            <a href="{{ url_for('staff.index') }}" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Cancel</a>
+            <button type="submit" class="btn btn-success"><i class='bx bx-check-circle'></i> Save Staff Member</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

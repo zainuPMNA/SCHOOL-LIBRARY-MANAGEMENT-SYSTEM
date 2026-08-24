@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Members{% endblock %}
+{% block header %}School Staff Management{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('staff.add') }}" class="btn btn-success"><i class='bx bx-plus'></i> Add Staff Member</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card mb-4 flex-between">
+    <div style="flex-grow: 1; max-width: 450px;">
+        <h3>Search Staff</h3>
+        <form action="{{ url_for('staff.index') }}" method="GET" class="flex gap-2">
+            <input type="text" name="q" class="form-control" placeholder="Search by name, ID, designation, department..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary"><i class='bx bx-search'></i> Search</button>
+            {% if search_query %}
+            <a href="{{ url_for('staff.index') }}" class="btn btn-danger"><i class='bx bx-x'></i> Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="{{ url_for('staff.download_template') }}" class="btn" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4); text-decoration: none; display: flex; align-items: center; gap: 6px;">
+            <i class='bx bx-download'></i> Download CSV Template
+        </a>
+        <form action="{{ url_for('staff.import_csv') }}" method="POST" enctype="multipart/form-data" class="flex gap-2 align-center">
+            <input type="file" name="file" class="form-control" accept=".csv" required style="max-width: 200px; padding: 0.4rem;">
+            <button type="submit" class="btn btn-primary"><i class='bx bx-upload'></i> Import CSV</button>
+        </form>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Staff / Emp ID</th>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Department</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in staff_members %}
+                <tr>
+                    <td>#{{ member.id }}</td>
+                    <td>
+                        <span style="font-size: 0.8rem; background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 2px 8px; border-radius: 6px; font-weight: 700;">
+                            {{ member.staff_id }}
+                        </span>
+                    </td>
+                    <td style="font-weight: 600; color: #f8fafc;">{{ member.name }}</td>
+                    <td>{{ member.designation }}</td>
+                    <td>{{ member.department }}</td>
+                    <td>{{ member.phone or 'N/A' }}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <a href="{{ url_for('staff.edit', id=member.id) }}" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.85rem;"><i class='bx bx-edit'></i> Edit</a>
+                            <form action="{{ url_for('staff.delete', id=member.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete staff member {{ member.name }}? All circulation records associated with this staff member will also be removed.');">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.85rem;"><i class='bx bx-trash'></i> Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">No staff members found. Add one manually or import via CSV.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

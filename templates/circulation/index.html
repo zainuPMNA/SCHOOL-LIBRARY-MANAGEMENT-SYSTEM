@@ -1,51 +1,170 @@
 {% extends "base.html" %}
 
-{% block title %}Circulation{% endblock %}
-{% block header %}Book Circulation{% endblock %}
+{% block title %}Circulation & Fines{% endblock %}
+{% block header %}Book Circulation & Fine Management{% endblock %}
 
 {% block header_actions %}
 <a href="{{ url_for('circulation.issue') }}" class="btn btn-success"><i class='bx bx-book-add'></i> Issue Book</a>
 {% endblock %}
 
 {% block content %}
-<div class="glass-card">
+
+<!-- Active Loans Section -->
+<div class="glass-card" style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1.25rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+        <i class='bx bx-book-open' style="color: var(--primary-color);"></i> Active Book Loans
+    </h3>
     <div class="table-container">
         <table>
             <thead>
                 <tr>
                     <th>Book</th>
-                    <th>Student</th>
+                    <th>Borrower Details</th>
                     <th>Issue Date</th>
                     <th>Due Date</th>
                     <th>Status / Late Days</th>
-                    <th>Action</th>
+                    <th>Est. Fine</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for issue in active_issues %}
                 <tr>
-                    <td>{{ issue.book.title }}</td>
-                    <td>{{ issue.student.name }} ({{ issue.student.roll_no }}) - {{ issue.student.class_name }}</td>
+                    <td>
+                        <div style="font-weight: 600;">{{ issue.book.title }}</div>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;">
+                            {% if issue.book.book_number %}
+                                <span style="font-size: 0.72rem; color: #60a5fa; background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); padding: 1px 5px; border-radius: 4px; font-family: monospace;" title="Book Number">
+                                    <i class='bx bx-hash'></i> {{ issue.book.book_number }}
+                                </span>
+                            {% endif %}
+                            {% if issue.book.shelf_number %}
+                                <span style="font-size: 0.72rem; color: #34d399; background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.3); padding: 1px 5px; border-radius: 4px;" title="Shelf Location">
+                                    <i class='bx bx-grid-alt'></i> {{ issue.book.shelf_number }}
+                                </span>
+                            {% endif %}
+                            {% if issue.book.call_number %}
+                                <span style="font-size: 0.72rem; color: #fcd34d; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.3); padding: 1px 5px; border-radius: 4px; font-family: monospace;" title="Call Number">
+                                    <i class='bx bx-purchase-tag-alt'></i> {{ issue.book.call_number }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            {% if issue.borrower_type == 'Staff' %}
+                            <span style="font-size: 0.75rem; background: rgba(167,139,250,0.25); color: #c4b5fd; padding: 2px 8px; border-radius: 12px; font-weight: 700; border: 1px solid rgba(167,139,250,0.3);">
+                                <i class='bx bx-briefcase'></i> Staff
+                            </span>
+                            <div>
+                                <div style="font-weight: 600;">{{ issue.staff.name }}</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">{{ issue.staff.designation }} ({{ issue.staff.department }})</div>
+                            </div>
+                            {% else %}
+                            <span style="font-size: 0.75rem; background: rgba(96,165,250,0.25); color: #93c5fd; padding: 2px 8px; border-radius: 12px; font-weight: 700; border: 1px solid rgba(96,165,250,0.3);">
+                                <i class='bx bx-user'></i> Student
+                            </span>
+                            <div>
+                                <div style="font-weight: 600;">{{ issue.student.name }}</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">Roll: {{ issue.student.roll_no }} | Class {{ issue.student.class_name }}-{{ issue.student.division }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ issue.due_date.strftime('%Y-%m-%d') }}</td>
                     <td>
                         {% if issue.current_late_days > 0 %}
-                            <span style="color: var(--danger-color); font-weight: 600;">{{ issue.current_late_days }} Days Late</span>
+                        <span style="color: var(--danger-color); font-weight: 600; background: rgba(239,68,68,0.15); padding: 3px 8px; border-radius: 6px;">
+                            <i class='bx bx-alarm-exclamation'></i> {{ issue.current_late_days }} Days Late
+                        </span>
                         {% else %}
-                            <span style="color: var(--secondary-color);"><i class='bx bx-time-five'></i> On Time</span>
+                        <span style="color: var(--secondary-color); background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 6px;">
+                            <i class='bx bx-time-five'></i> On Time
+                        </span>
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{{ url_for('circulation.return_book', issue_id=issue.id) }}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">Return Book</a>
+                        {% if issue.calculated_fine > 0 %}
+                        <strong style="color: #f87171;">₹{{ "%.2f"|format(issue.calculated_fine) }}</strong>
+                        {% else %}
+                        <span style="color: #94a3b8;">₹0.00</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <a href="{{ url_for('circulation.return_book', issue_id=issue.id) }}" class="btn btn-primary"
+                                style="padding: 0.35rem 0.75rem; font-size: 0.85rem;">Return</a>
+                            
+                            {% if issue.current_late_days == 0 and issue.renew_count < 2 %}
+                            <form action="{{ url_for('circulation.renew_book', issue_id=issue.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Renew book loan">
+                                    <i class='bx bx-refresh'></i> Renew ({{ issue.renew_count }}/2)
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" style="text-align: center;">No active book issues found.</td>
+                    <td colspan="7" style="text-align: center; padding: 1.5rem; color: #94a3b8;">No active book loans currently.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Pending Unpaid Fines History Section -->
+{% if unpaid_fines %}
+<div class="glass-card">
+    <h3 style="margin-bottom: 1.25rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; color: #f87171;">
+        <i class='bx bx-error-circle'></i> Pending Unpaid Fines
+    </h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Borrower</th>
+                    <th>Book Returned</th>
+                    <th>Late Days</th>
+                    <th>Fine Amount</th>
+                    <th>Reason</th>
+                    <th>Settle Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fine in unpaid_fines %}
+                <tr>
+                    <td>
+                        <strong>{{ fine.borrower_name }}</strong>
+                        <span style="font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; margin-left: 4px;">{{ fine.borrower_type }}</span>
+                    </td>
+                    <td>{{ fine.book.title }}</td>
+                    <td>{{ fine.late_days }} Days</td>
+                    <td style="font-weight: 700; color: #ef4444;">₹{{ "%.2f"|format(fine.fine_amount) }}</td>
+                    <td style="font-size: 0.85rem; color: #cbd5e1;">{{ fine.reason_for_delay or 'N/A' }}</td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <form action="{{ url_for('circulation.pay_fine', issue_id=fine.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-success" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                                    <i class='bx bx-check'></i> Mark Paid
+                                </button>
+                            </form>
+                            <form action="{{ url_for('circulation.waive_fine', issue_id=fine.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                                    <i class='bx bx-x'></i> Waive
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

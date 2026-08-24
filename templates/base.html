@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antigravity Library | {% block title %}{% endblock %}</title>
+    <title>Library System | {% block title %}{% endblock %}</title>
     <!-- Include Boxicons for icons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -23,15 +23,46 @@
             <li><a href="{{ url_for('dashboard.analytics') }}"><i class='bx bx-line-chart'></i> Analytics</a></li>
             <li><a href="{{ url_for('dashboard.reports') }}"><i class='bx bx-file'></i> Reports</a></li>
             <li><a href="{{ url_for('students.index') }}"><i class='bx bx-user'></i> Students</a></li>
+            <li><a href="{{ url_for('staff.index') }}"><i class='bx bx-briefcase'></i> School Staff</a></li>
             <li><a href="{{ url_for('books.index') }}"><i class='bx bx-book'></i> Books</a></li>
             <li><a href="{{ url_for('circulation.index') }}"><i class='bx bx-transfer'></i> Circulation</a></li>
+            {% if is_chief_librarian %}
+            <li><a href="{{ url_for('auth.accounts') }}"><i class='bx bx-user-pin'></i> User Accounts</a></li>
             <li><a href="{{ url_for('backup.index') }}"><i class='bx bx-data'></i> Backup/Restore</a></li>
+            {% endif %}
+            <li><a href="{{ url_for('dashboard.rules') }}"><i class='bx bx-list-check'></i> Rules of Library</a></li>
             <li style="margin-top: auto; padding-top: 1rem;"><a href="{{ url_for('dashboard.about') }}"><i class='bx bx-info-circle'></i> About</a></li>
         </ul>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content">
+        
+        <!-- User Header / Bar -->
+        {% if current_user_name %}
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.6rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-size: 0.9rem;">
+                <i class='bx bx-shield-quarter' style="color: #6366f1; font-size: 1.2rem;"></i>
+                <span>YES PA INAMDAR Library Panel</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class='bx bx-user-circle' style="font-size: 1.4rem; color: var(--primary-color);"></i>
+                    <span style="font-weight: 600; font-size: 0.95rem; color: #f8fafc;">{{ current_user_name }}</span>
+                    <span style="font-size: 0.75rem; background: {% if is_chief_librarian %}rgba(99,102,241,0.25){% else %}rgba(16,185,129,0.25){% endif %}; color: {% if is_chief_librarian %}#a5b4fc{% else %}#6ee7b7{% endif %}; padding: 3px 10px; border-radius: 12px; font-weight: 700;">
+                        {{ user_role_display }}
+                    </span>
+                </div>
+                <a href="{{ url_for('auth.change_password') }}" class="btn" style="background: rgba(255,255,255,0.1); color: #e2e8f0; padding: 0.35rem 0.75rem; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
+                    <i class='bx bx-cog'></i> Account Settings
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
+                    <i class='bx bx-log-out'></i> Logout
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Flash Messages -->
         <div class="flash-messages">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -67,3 +98,4 @@
     </script>
 </body>
 </html>
+

@@ -10,10 +10,11 @@
     <form action="{{ url_for('dashboard.reports') }}" method="POST">
         <div class="form-group">
             <label for="report_type">Select Report Type</label>
-            <select id="report_type" name="report_type" class="form-control" required>
+            <select id="report_type" name="report_type" class="form-control" required style="background: #1e293b; color: white;">
                 <option value="students">1: All Student Data (Sorted by Class)</option>
-                <option value="books">2: All Book Data (Comprehensive Inventory)</option>
-                <option value="returns">3: Taken Books (Full Circulation History & Returns)</option>
+                <option value="staff">2: All School Staff Roster (Teachers, HODs, Admin)</option>
+                <option value="books">3: All Book Data (Comprehensive Inventory)</option>
+                <option value="returns">4: Taken Books (Full Circulation History & Returns)</option>
             </select>
         </div>
         
